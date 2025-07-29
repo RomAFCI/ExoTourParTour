@@ -14,5 +14,17 @@
 
 // 5.Affichez le nom du gagnant.
 
+// Notes :
+// Il faut sauvegarder les data de pv pour que le jeu fonctionne,
+// avec un eventprevent default en js on empeche la page de redemarrer (donc pas de save nécessaire),
+// Plusieurs méthodes possible pour save des data :
+//                                                   1-BDD
+
+//                                                   2-$_SESSION
+
+//                                                   3-index.php?key=value
+//                                                               |   
+//                                                       $_GET['key']
+
 
 ?>
