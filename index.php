@@ -121,28 +121,19 @@ $roublard = new Roublard('Aragorn', 130, 10);
 
 
 // Results d'objet
-var_dump($guerrier);
-echo "<br>";
+// var_dump($guerrier);
+// echo "<br>";
 
-var_dump($voleur);
-echo "<br>";
+// var_dump($voleur);
+// echo "<br>";
 
-var_dump($magicien);
-echo "<br>";
+// var_dump($magicien);
+// echo "<br>";
 
-var_dump($roublard);
-echo "<br>";
-echo "<hr>";
-
-// utiliser method sur objet
-$guerrier->afficherEtat();
-echo "<br>";
-$voleur->afficherEtat();
-echo "<br>";
-$magicien->afficherEtat();
-echo "<br>";
-$roublard->afficherEtat();
-echo "<br>";
+// var_dump($roublard);
+// echo "<br>";
+// echo "<hr>";
+// En commentaire pour affichage web
 
 ?>
 
@@ -156,32 +147,138 @@ echo "<br>";
 </head>
 
 <body>
-    <form method="post">
+    <h2>Combat au tour par tour</h2>
+    <h4>Sélectionne ton personnage :</h4>
+    <?php
+    // afficher perso avec method etat + selectionnez le joueur 1 en href
+    $guerrier->afficherEtat();
+    echo "<br>";
+    echo '<a href="?joueur1=guerrier">Choisir ce personnage</a>';
+    echo "<br>";
+    echo "<br>";
 
-        <input type="radio" id="guerrier" name="persoSelectionner" value="guerrier" checked />
-        <label for="guerrier">Guerrier</label>
-        <br>
 
-        <input type="radio" id="voleur" name="persoSelectionner" value="voleur" />
-        <label for="voleur">Voleur</label>
-        <br>
+    $voleur->afficherEtat();
+    echo "<br>";
+    echo '<a href="?joueur1=voleur">Choisir ce personnage</a>';
+    echo "<br>";
+    echo "<br>";
 
-        <input type="radio" id="magicien" name="persoSelectionner" value="magicien" />
-        <label for="magicien">Magicien</label>
-        <br>
+    $magicien->afficherEtat();
+    echo "<br>";
+    echo '<a href="?joueur1=magicien">Choisir ce personnage</a>';
+    echo "<br>";
+    echo "<br>";
 
-        <input type="radio" id="roublard" name="persoSelectionner" value="roublard" />
-        <label for="roublard">Roublard</label>
-        <br>
+    $roublard->afficherEtat();
+    echo "<br>";
+    echo '<a href="?joueur1=roublard">Choisir ce personnage</a>';
+    echo "<br>";
+    echo "<br>";
 
-        <input type="submit" name="selectionnerJoueur">
-        <br>
+    ?>
 
-    </form>
 </body>
 
 </html>
 
 <?php
+// utilisez le href avec GET + afficher la suite du jeu
+if (isset($_GET['joueur1'])) {
 
-if(isset($_POST[selectionnerJoueur]))
+    // BONUS : AFFICHER LE NOM DU PERSO CHOISI,
+    $joueur1_nom = '';
+
+    if ($_GET['joueur1'] == 'guerrier') {
+        $joueur1_nom = $guerrier->nom;
+    }
+    if ($_GET['joueur1'] == 'voleur') {
+        $joueur1_nom = $voleur->nom;
+    }
+    if ($_GET['joueur1'] == 'magicien') {
+        $joueur1_nom = $magicien->nom;
+    }
+    if ($_GET['joueur1'] == 'roublard') {
+        $joueur1_nom = $roublard->nom;
+    }
+    // le href est modifier on enchaine sur la suite du jeu
+    echo "<hr>";
+    echo "<br>";
+    echo "Vous avez choisi " . $joueur1_nom . " !";
+    echo "<br>";
+    echo "<h4>Choisissez votre adversaire :</h4>";
+
+
+    // Liens pour joueur 2 (on garde joueur1 dans l'URL)
+
+    $guerrier->afficherEtat();
+    echo "<br>";
+    echo '<a href="?joueur1=' . $_GET['joueur1'] . '&joueur2=guerrier">Choisir cet adversaire</a>';
+    echo "<br>";
+    echo "<br>";
+
+    $voleur->afficherEtat();
+    echo "<br>";
+    echo '<a href="?joueur1=' . $_GET['joueur1'] . '&joueur2=voleur">Choisir cet adversaire</a>';
+    echo "<br>";
+    echo "<br>";
+
+    $magicien->afficherEtat();
+    echo "<br>";
+    echo '<a href="?joueur1=' . $_GET['joueur1'] . '&joueur2=magicien">Choisir cet adversaire</a>';
+    echo "<br>";
+    echo "<br>";
+
+    $roublard->afficherEtat();
+    echo "<br>";
+    echo '<a href="?joueur1=' . $_GET['joueur1'] . '&joueur2=roublard">Choisir cet adversaire</a>';
+    echo "<br>";
+    echo "<br>";
+}
+
+
+if (isset($_GET['joueur1']) && isset($_GET['joueur2'])) {
+
+    $joueur1_nom = '';
+    $joueur2_nom = '';
+
+    if ($_GET['joueur1'] == 'guerrier') {
+        $joueur1_nom = $guerrier->nom;
+    }
+    if ($_GET['joueur1'] == 'voleur') {
+        $joueur1_nom = $voleur->nom;
+    }
+    if ($_GET['joueur1'] == 'magicien') {
+        $joueur1_nom = $magicien->nom;
+    }
+    if ($_GET['joueur1'] == 'roublard') {
+        $joueur1_nom = $roublard->nom;
+    }
+
+    if ($_GET['joueur2'] == 'guerrier') {
+        $joueur2_nom = $guerrier->nom;
+    }
+    if ($_GET['joueur2'] == 'voleur') {
+        $joueur2_nom = $voleur->nom;
+    }
+    if ($_GET['joueur2'] == 'magicien') {
+        $joueur2_nom = $magicien->nom;
+    }
+    if ($_GET['joueur2'] == 'roublard') {
+        $joueur2_nom = $roublard->nom;
+    }
+
+    echo "<hr><br>";
+    echo "Votre adversaire sera " . $joueur2_nom . " !" . '<br>' . '<br>';
+    echo "Préparez vous au combat final !";
+    echo "<br><br>";
+    echo '<a href="lancerCombat.php?joueur1=' . $_GET['joueur1'] . '&joueur2=' . $_GET['joueur2'] . '">Lancer la partie</a>';
+}
+
+?>
+
+<?php
+echo '<hr>';
+echo '<br>';
+echo '<a href="index.php">Reset</a>';
+?>
