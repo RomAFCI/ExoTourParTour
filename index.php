@@ -314,6 +314,50 @@ if (isset($_GET['joueur1']) && isset($_GET['joueur2'])) {
     echo '<a href="index.php?joueur1=' . $_GET['joueur1'] . '&joueur2=' . $_GET['joueur2'] . '&pv1=' . $pv1 . '&pv2=' . $pv2 . '&action=attaque">Lancer le combat</a>';
 }
 
+// A REVOIR ⚠️
+if (isset($_GET['joueur1']) && isset($_GET['joueur2']) && isset($_GET['action']) && $_GET['action'] === 'attaque') {
+
+    // Réinstancier les personnages selon leur nom (tu peux factoriser ça plus tard si tu veux)
+    if ($_GET['joueur1'] == 'guerrier') {
+        $joueur1 = new Guerrier();
+    } elseif ($_GET['joueur1'] == 'voleur') {
+        $joueur1 = new Voleur();
+    } elseif ($_GET['joueur1'] == 'magicien') {
+        $joueur1 = new Magicien();
+    } elseif ($_GET['joueur1'] == 'roublard') {
+        $joueur1 = new Roublard('Aragorn', 130, 10);
+    }
+
+    if ($_GET['joueur2'] == 'guerrier') {
+        $joueur2 = new Guerrier();
+    } elseif ($_GET['joueur2'] == 'voleur') {
+        $joueur2 = new Voleur();
+    } elseif ($_GET['joueur2'] == 'magicien') {
+        $joueur2 = new Magicien();
+    } elseif ($_GET['joueur2'] == 'roublard') {
+        $joueur2 = new Roublard('Aragorn', 130, 10);
+    }
+
+    echo "<hr>";
+    echo "<h3>Début du combat</h3>";
+
+    // Attaque
+    $joueur1->attaquer($joueur2);
+
+    // Affichage des états après attaque
+    echo "<br><strong>État après attaque :</strong><br>";
+    $joueur1->afficherEtat();
+    echo "<br>";
+    $joueur2->afficherEtat();
+
+    // Relancer une attaque
+    echo "<br><br><a href='?joueur1=" . $_GET['joueur1'] . "&joueur2=" . $_GET['joueur2'] . "&action=attaque'>Attaquer encore</a>";
+
+    // Retour au début
+    echo "<br><br><a href='index.php'>Reset</a>";
+}
+
+
 ?>
 
 <?php
