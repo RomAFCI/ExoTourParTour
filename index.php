@@ -50,9 +50,16 @@ class Perso
 
     // Method
 
-    public function attaquer(Perso $adversaire) {}
+    public function attaquer(Perso $adversaire)
+    {
+        echo $this->nom . " attaque " . $adversaire->getNom() . " et lui inflige " . $this->atk . " points de dégâts.<br>";
+        $adversaire->recevoirDegats($this->atk);
+    }
 
-    public function recevoirDegats(int $degats) {}
+    public function recevoirDegats(int $degats)
+    {
+        $this->setPv($this->getPv() - $degats);
+    }
 
     public function afficherEtat()
     {
@@ -272,7 +279,39 @@ if (isset($_GET['joueur1']) && isset($_GET['joueur2'])) {
     echo "Votre adversaire sera " . $joueur2_nom . " !" . '<br>' . '<br>';
     echo "Préparez vous au combat final !";
     echo "<br><br>";
-    echo '<a href="lancerCombat.php?joueur1=' . $_GET['joueur1'] . '&joueur2=' . $_GET['joueur2'] . '">Lancer la partie</a>';
+
+    // Définir les PV de départ pour chaque perso
+    $pv1 = 0;
+    $pv2 = 0;
+
+    // Récupère les PV selon le perso choisi
+    if ($_GET['joueur1'] == 'guerrier') {
+        $pv1 = $guerrier->pv;
+    }
+    if ($_GET['joueur1'] == 'voleur') {
+        $pv1 = $voleur->pv;
+    }
+    if ($_GET['joueur1'] == 'magicien') {
+        $pv1 = $magicien->pv;
+    }
+    if ($_GET['joueur1'] == 'roublard') {
+        $pv1 = $roublard->pv;
+    }
+
+    if ($_GET['joueur2'] == 'guerrier') {
+        $pv2 = $guerrier->pv;
+    }
+    if ($_GET['joueur2'] == 'voleur') {
+        $pv2 = $voleur->pv;
+    }
+    if ($_GET['joueur2'] == 'magicien') {
+        $pv2 = $magicien->pv;
+    }
+    if ($_GET['joueur2'] == 'roublard') {
+        $pv2 = $roublard->pv;
+    }
+
+    echo '<a href="index.php?joueur1=' . $_GET['joueur1'] . '&joueur2=' . $_GET['joueur2'] . '&pv1=' . $pv1 . '&pv2=' . $pv2 . '&action=attaque">Lancer le combat</a>';
 }
 
 ?>
