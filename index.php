@@ -1,4 +1,15 @@
 <?php
+// UTILISATION DE SESSION POUR CONSERVER LES PV LORS DU COMBAT, UTILISER GET TROP PEU FIABLE
+// EXEMPLE
+// | 🔄                           | GET        | SESSION            |
+// | ---------------------------- | ---------- | ------------------ |
+// | ⚙️ Gère les états dynamiques | ❌ Mauvais  | ✅ Parfait          |
+// | 🧼 URL propre                | ❌ Non      | ✅ Oui              |
+// | 🔐 Sécurité (anti-triche)    | ❌ Aucune   | ✅ Bonne            |
+// | 📦 Stocke un objet entier    | ❌ Non      | ✅ Oui              |
+// | 🧠 Facilité de dev           | ❌ Complexe | ✅ Simple et propre |
+session_start();
+
 
 // class parent
 class Perso
@@ -65,6 +76,11 @@ class Perso
     {
         echo "$this->nom à $this->pv PV est $this->atk en ATK.";
     }
+
+    public function afficherPv()
+    {
+        echo "$this->nom à $this->pv PV";
+    }
 }
 
 // class enfants
@@ -80,6 +96,19 @@ class Guerrier extends Perso
         // Particularité : dégâts constants, bonne résistance.
 
     }
+
+    public function attaquer(Perso $adversaire)
+{
+    // 5% de chance de rater l'attaque
+    if (rand(1, 100) <= 5) {
+        echo $this->nom . " rate complètement son attaque !<br>";
+        return;
+    }
+
+    echo $this->nom . " attaque " . $adversaire->getNom() . " et lui inflige " . $this->atk . " points de dégâts.<br>";
+    $adversaire->recevoirDegats($this->atk);
+}
+
 }
 
 class Voleur extends Perso
@@ -94,6 +123,19 @@ class Voleur extends Perso
         // Particularité : a une chance (30%) d’esquiver une attaque (aucun dégât subi).
 
     }
+
+    public function recevoirDegats(int $degats)
+{
+    // 30% de chance d'esquiver
+    if (rand(1, 100) <= 30) {
+        echo $this->nom . " esquive l'attaque !<br>";
+        return;
+    }
+
+    // Sinon, il subit les dégâts
+    $this->setPv($this->getPv() - $degats);
+}
+
 }
 
 class Magicien extends Perso
@@ -108,6 +150,22 @@ class Magicien extends Perso
         // Particularité : a une chance (50%) de lancer un sort spécial qui double les dégâts infligés.
 
     }
+
+    public function attaquer(Perso $adversaire)
+{
+    $degats = $this->atk;
+
+    // 50% de chance de doubler les dégâts
+    if (rand(1, 100) <= 50) {
+        $degats *= 2;
+        echo $this->nom . " lance un sort spécial ! Il inflige " . $degats . " dégâts.<br>";
+    } else {
+        echo $this->nom . " attaque " . $adversaire->getNom() . " et lui inflige " . $degats . " dégâts.<br>";
+    }
+
+    $adversaire->recevoirDegats($degats);
+}
+
 }
 
 class Roublard extends Perso
@@ -118,6 +176,23 @@ class Roublard extends Perso
         $this->pv = $pv;
         $this->atk = $atk;
     }
+
+    public function attaquer(Perso $adversaire)
+{
+    $degats = $this->atk;
+
+    // 15% de chance de voler 5 PV
+    if (rand(1, 100) <= 15) {
+        echo $this->nom . " vole 5 PV à " . $adversaire->getNom() . " !<br>";
+        $this->setPv($this->getPv() + 5);
+        $adversaire->recevoirDegats(5); // On vole 5 = adversaire perd 5
+        return;
+    }
+
+    echo $this->nom . " attaque " . $adversaire->getNom() . " et lui inflige $degats points de dégâts.<br>";
+    $adversaire->recevoirDegats($degats);
+}
+
 }
 
 // Declaration d'objet
@@ -244,7 +319,20 @@ if (isset($_GET['joueur1'])) {
 }
 
 
-if (isset($_GET['joueur1']) && isset($_GET['joueur2'])) {
+if (isset($_GET['joueur1']) && isset($_GET['joueur2']) && !isset($_GET['action'])) {
+
+    // Crée les objets correspondants
+    $persos = [
+        'guerrier' => new Guerrier(),
+        'voleur' => new Voleur(),
+        'magicien' => new Magicien(),
+        'roublard' => new Roublard('Aragorn', 130, 10),
+    ];
+
+    // Stocker les objets dans $_SESSION
+    $_SESSION['joueur1'] = $persos[$_GET['joueur1']];
+    $_SESSION['joueur2'] = $persos[$_GET['joueur2']];
+
 
     $joueur1_nom = '';
     $joueur2_nom = '';
@@ -311,32 +399,17 @@ if (isset($_GET['joueur1']) && isset($_GET['joueur2'])) {
         $pv2 = $roublard->pv;
     }
 
-    echo '<a href="index.php?joueur1=' . $_GET['joueur1'] . '&joueur2=' . $_GET['joueur2'] . '&pv1=' . $pv1 . '&pv2=' . $pv2 . '&action=attaque">Lancer le combat</a>';
+    echo '<a href="index.php?joueur1=' . $_GET['joueur1'] . '&joueur2=' . $_GET['joueur2'] . '&action=attaque">Lancer le combat</a>';
 }
 
 // A REVOIR ⚠️
 if (isset($_GET['joueur1']) && isset($_GET['joueur2']) && isset($_GET['action']) && $_GET['action'] === 'attaque') {
 
-    // Réinstancier les personnages selon leur nom (tu peux factoriser ça plus tard si tu veux)
-    if ($_GET['joueur1'] == 'guerrier') {
-        $joueur1 = new Guerrier();
-    } elseif ($_GET['joueur1'] == 'voleur') {
-        $joueur1 = new Voleur();
-    } elseif ($_GET['joueur1'] == 'magicien') {
-        $joueur1 = new Magicien();
-    } elseif ($_GET['joueur1'] == 'roublard') {
-        $joueur1 = new Roublard('Aragorn', 130, 10);
-    }
 
-    if ($_GET['joueur2'] == 'guerrier') {
-        $joueur2 = new Guerrier();
-    } elseif ($_GET['joueur2'] == 'voleur') {
-        $joueur2 = new Voleur();
-    } elseif ($_GET['joueur2'] == 'magicien') {
-        $joueur2 = new Magicien();
-    } elseif ($_GET['joueur2'] == 'roublard') {
-        $joueur2 = new Roublard('Aragorn', 130, 10);
-    }
+
+    $joueur1 = $_SESSION['joueur1'];
+    $joueur2 = $_SESSION['joueur2'];
+
 
     echo "<hr>";
     echo "<h3>Début du combat</h3>";
@@ -344,17 +417,32 @@ if (isset($_GET['joueur1']) && isset($_GET['joueur2']) && isset($_GET['action'])
     // Attaque
     $joueur1->attaquer($joueur2);
 
-    // Affichage des états après attaque
-    echo "<br><strong>État après attaque :</strong><br>";
-    $joueur1->afficherEtat();
+    // Vérifie si joueur 2 est toujours vivant
+    if ($joueur2->getPv() > 0) {
+        echo "<br>";
+        // Joueur 2 attaque à son tour
+        $joueur2->attaquer($joueur1);
+    } else {
+        echo "<br><strong>" . $joueur2->getNom() . " est K.O. !</strong>";
+    }
+
+    // Vérifie si joueur 1 est encore vivant
+    if ($joueur1->getPv() <= 0) {
+        echo "<br><h4>" . $joueur1->getNom() . " est K.O. !</h4>";
+    }
+
+    // Affichage des PV restants
+    echo "<br><br>";
+    $joueur1->afficherPv();
     echo "<br>";
-    $joueur2->afficherEtat();
+    $joueur2->afficherPv();
 
-    // Relancer une attaque
-    echo "<br><br><a href='?joueur1=" . $_GET['joueur1'] . "&joueur2=" . $_GET['joueur2'] . "&action=attaque'>Attaquer encore</a>";
-
-    // Retour au début
-    echo "<br><br><a href='index.php'>Reset</a>";
+    // Si les deux sont vivants, on propose d'attaquer à nouveau
+    if ($joueur1->getPv() > 0 && $joueur2->getPv() > 0) {
+        echo "<br><br><a href='?joueur1=" . $_GET['joueur1'] . "&joueur2=" . $_GET['joueur2'] . "&action=attaque'>Attaquer encore</a>";
+    } else {
+        echo "<br><br><a href='index.php'>Recommencer un combat</a>";
+    }
 }
 
 
